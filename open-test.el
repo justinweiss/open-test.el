@@ -74,7 +74,7 @@
   (ot-find-dir (lambda (dir-name)
                  (ot-all-p (lambda (e) 
                              (file-exists-p (concat dir-name e)))
-                           '("app" "test" "lib"))) file-name))
+                           '("test" "lib"))) file-name))
 
 (defun ot-test-type (file-name)
   (let* ((test-types-alist '(("models" . "unit") ("controllers" . "functional") ("lib" . "unit"))))
