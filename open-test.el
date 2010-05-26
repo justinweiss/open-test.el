@@ -83,12 +83,15 @@
                              (file-exists-p (concat dir-name e)))
                            '("test" "lib"))) file-name))
 
-(defun ot-test-type (file-name)
-  (let* ((test-types-alist '(("models" . "unit") ("controllers" . "functional") ("lib" . "unit"))))
-    (ot-alist-get test-types-alist 
-                  (and file-name 
-                       (file-name-nondirectory (ot-trim-directory (ot-dir-in-alist test-types-alist file-name)))))))
+(defvar ot-test-types-alist
+  '(("models" . "unit") ("controllers" . "functional") ("lib" . "unit")))
 
+(defun ot-test-type (file-name)
+    (ot-alist-get ot-test-types-alist 
+                  (and file-name 
+                       (file-name-nondirectory (ot-trim-directory (ot-dir-in-alist ot-test-types-alist file-name))))))
+
+;; returns the first parent directory of `file-name' whose name is a key in `alist'
 (defun ot-dir-in-alist (alist file-name)
   (ot-find-dir (lambda (dir-name)
                  (ot-alist-get alist (file-name-nondirectory (ot-trim-directory dir-name)))) file-name))
@@ -98,6 +101,35 @@
         ((equal key (car (car alist))) (cdr (car alist)))
         ((ot-alist-get (cdr alist) key))))
 
+;; returns the path difference between path-name and file-name.
+(defun ot-diff-path (file-name path-name)
+  (let* ((split-file-name (split-string (ot-trim-directory (file-name-directory file-name)) "/"))
+         (split-path-name (split-string path-name "/"))
+         (list-diff (ot-diff-string-list split-file-name split-path-name)))
+    (if (equal nil list-diff) 
+        nil
+      (mapconcat (lambda (e) e) list-diff "/"))))
+          
+
+(defun ot-diff-string-list (first second)
+  (cond
+   ((equal nil first) 
+    second)
+   ((equal nil second)
+    first)
+   ((equal (car first) (car second))
+    (ot-diff-string-list (cdr first) (cdr second)))
+   (t
+    first)))
+
+(defun ot-relative-path (file-name)
+  (let ((relative-path (ot-diff-path file-name (ot-dir-in-alist ot-test-types-alist (file-name-directory file-name)))))
+    (if (equal nil relative-path)
+        ""
+      (concat relative-path "/"))))
+
+;; returns the first parent directory of `file-name' for which `pred'
+;; is true.
 (defun ot-find-dir (pred file-name)
   (let ((dir-name (file-name-directory file-name)))
     (if (and dir-name (apply pred (list dir-name)))
@@ -108,7 +140,7 @@
   (concat (ot-test-directory file-name) (file-name-sans-extension (file-name-nondirectory file-name)) "_test.rb"))
 
 (defun ot-test-directory (file-name)
-  (concat (ot-project-root file-name) "test/" (ot-test-type file-name) "/")) 
+  (concat (ot-project-root file-name) "test/" (ot-test-type file-name) "/" (ot-relative-path file-name)))
 
 (defun ot-trim-directory (dir-name)
    (if dir-name 
