@@ -157,6 +157,11 @@
 (defun ot-include-path (file-name)
   (concat (ot-project-root file-name) "test:" (ot-project-root file-name) "lib "))
 
+(defun ruby-program (file-name)
+  (if (file-name-directory (concat (ot-project-root file-name) "Gemfile"))
+      '("bundle" "exec" "ruby")
+    (list "ruby")))
+
 (defun run-test ()
   (interactive)
   (let* ((buffer-name "*Test Results*")
@@ -170,7 +175,7 @@
       (compilation-mode)
       (and ot-test-process (equal 'run (process-status ot-test-process)) (interrupt-process ot-test-process))
       (erase-buffer)
-      (setq ot-test-process (start-process "ruby-test-process" buffer-name "ruby" (concat "-I" (ot-include-path test-buffer-name)) test-buffer-name ))
+      (setq ot-test-process (apply 'start-process (append (list "ruby-test-process" buffer-name) (ruby-program test-buffer-name) (list (concat "-I" (ot-include-path test-buffer-name)) test-buffer-name))))
       (display-buffer buffer-name))))
  
 (provide 'open-test)
