@@ -158,7 +158,7 @@
   (concat (ot-project-root file-name) "test:" (ot-project-root file-name) "lib "))
 
 (defun ruby-program (file-name)
-  (if (file-name-directory (concat (ot-project-root file-name) "Gemfile"))
+  (if (file-exists-p (concat (ot-project-root file-name) "Gemfile"))
       '("bundle" "exec" "ruby")
     (list "ruby")))
 
