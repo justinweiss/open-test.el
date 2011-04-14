@@ -147,6 +147,7 @@
        (substring dir-name 0 -1)
      ""))
 
+;;;###autoload
 (defun open-test ()
   (interactive)
   (when (and (ot-ruby-file-p (buffer-file-name)) (ot-project-root (buffer-file-name)) (ot-test-type (buffer-file-name)))
@@ -162,6 +163,7 @@
       '("bundle" "exec" "ruby")
     (list "ruby")))
 
+;;;###autoload
 (defun run-test ()
   (interactive)
   (let* ((buffer-name "*Test Results*")
