@@ -5,11 +5,11 @@
 ;; Version: 1.0
 ;; Created: 2010-05-11
 ;; Keywords: project, convenience
- 
+
 ;; This file is NOT part of GNU Emacs.
- 
+
 ;;; License:
- 
+
 ;; Copyright (c) 2010 Justin Weiss
 ;;
 ;; Permission is hereby granted, free of charge, to any person
@@ -33,7 +33,7 @@
 ;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;; OTHER DEALINGS IN THE SOFTWARE.
 
-;;; Commentary: 
+;;; Commentary:
 
 ;; Not yet ready for prime time, but it works for me.
 
@@ -41,20 +41,20 @@
 ;; open-test.el provides two main interactive functions:
 ;;
 ;; - `open-test' will try to guess the filename of the test covering
-;;   `current-buffer''s file and find that file.  
+;;   `current-buffer''s file and find that file.
 ;;
 ;; - `run-test', when run in a buffer that looks like a ruby test
 ;;   file, will attempt to run the tests in that file. It runs it in a
 ;;   compilation buffer, so links to files in backtraces should work.
 
 ;;; Configuration:
-;; In your .emacs or init.el: 
+;; In your .emacs or init.el:
 ;;
 ;; (add-to-list 'load-path "~/.emacs.d/path/to/open-test")
 ;; (require 'open-test)
 
-;;; TODO: 
-;; - real documentation 
+;;; TODO:
+;; - real documentation
 
 ;;; Code:
 
@@ -73,13 +73,13 @@
 
 ;; Predicate returning non-nil if `file-name' refers to a ruby test file.
 (defun ot-ruby-test-file-p (file-name)
-  (string-ends-with-p file-name "_test.rb"))
+  (string-suffix-p file-name "_test.rb"))
 
 ;; Returns our best guess as to the root directory of the project
 ;; containing `file-name'.
 (defun ot-project-root (file-name)
   (ot-find-dir (lambda (dir-name)
-                 (ot-all-p (lambda (e) 
+                 (ot-all-p (lambda (e)
                              (file-exists-p (concat dir-name e)))
                            '("test" "lib"))) file-name))
 
@@ -87,8 +87,8 @@
   '(("models" . "unit") ("controllers" . "functional") ("lib" . "unit")))
 
 (defun ot-test-type (file-name)
-    (ot-alist-get ot-test-types-alist 
-                  (and file-name 
+    (ot-alist-get ot-test-types-alist
+                  (and file-name
                        (file-name-nondirectory (ot-trim-directory (ot-dir-in-alist ot-test-types-alist file-name))))))
 
 ;; returns the first parent directory of `file-name' whose name is a key in `alist'
@@ -106,14 +106,14 @@
   (let* ((split-file-name (split-string (ot-trim-directory (file-name-directory file-name)) "/"))
          (split-path-name (split-string path-name "/"))
          (list-diff (ot-diff-string-list split-file-name split-path-name)))
-    (if (equal nil list-diff) 
+    (if (equal nil list-diff)
         nil
       (mapconcat (lambda (e) e) list-diff "/"))))
-          
+
 
 (defun ot-diff-string-list (first second)
   (cond
-   ((equal nil first) 
+   ((equal nil first)
     second)
    ((equal nil second)
     first)
@@ -143,7 +143,7 @@
   (concat (ot-project-root file-name) "test/" (ot-test-type file-name) "/" (ot-relative-path file-name)))
 
 (defun ot-trim-directory (dir-name)
-   (if dir-name 
+   (if dir-name
        (substring dir-name 0 -1)
      ""))
 
@@ -179,5 +179,5 @@
       (erase-buffer)
       (setq ot-test-process (apply 'start-process (append (list "ruby-test-process" buffer-name) (ruby-program test-buffer-name) (list (concat "-I" (ot-include-path test-buffer-name)) test-buffer-name))))
       (display-buffer buffer-name))))
- 
+
 (provide 'open-test)
