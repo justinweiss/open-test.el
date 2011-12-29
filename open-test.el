@@ -73,7 +73,7 @@
 
 ;; Predicate returning non-nil if `file-name' refers to a ruby test file.
 (defun ot-ruby-test-file-p (file-name)
-  (string-suffix-p file-name "_test.rb"))
+  (string-suffix-p "_test.rb" file-name))
 
 ;; Returns our best guess as to the root directory of the project
 ;; containing `file-name'.
